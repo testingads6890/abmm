@@ -39,7 +39,20 @@ php artisan route:list --path=api      # all API routes
 - Theme colours: Admin → Settings, applied by `App\Support\Theme`
 - Sidebar menus hidden for now: see `docs/PROJECT-HANDOVER.md`, section 8
 
+## Git and GitHub
+- Repository: https://github.com/testingads6890/abmm (branch `main`). The server commits locally, then pushes over SSH with the key `~/.ssh/id_ed25519_testingads` (account testingads6890).
+- Push command: `GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_testingads -o IdentitiesOnly=yes" git push git@github.com:testingads6890/abmm.git HEAD:main`
+- Commit messages end with `Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>`.
+- `.gitignore` keeps out `vendor/`, `.env`, `storage/`, SQL dumps, CSV member lists and zip archives. Check `git status` before every commit.
+- Do not force-push. Do not push member data or secrets.
+
+## Checks
+- `bash tests/unit/run-all.sh`: 13 checks (PHP and Bun). All must pass before a push.
+- Browser behaviour is not covered by these checks.
+
 ## Known open items
-- City/Village dropdown does not show values in the browser yet. The server endpoint and the form script both pass tests. Confirm with the browser Network tab (`villages` request).
-- Zone is not in the family form. Its meaning is not defined yet.
-- GitHub push is blocked: the server's SSH key is not registered on GitHub.
+- Village/City dropdown and Pincode fill: confirm in a browser (Network tab, `villages` request). The server side and the form script pass the checks.
+- Zone is not in the family form. Its meaning must be confirmed.
+- Migrate, Died, meeting save and file upload are tested by code checks only.
+- Laravel 13 upgrade is not started and needs a separate check. The server runs Laravel 12.71.0 on PHP 8.2.35.
+- Change the seeded Super Admin password before go-live.
