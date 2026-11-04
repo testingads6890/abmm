@@ -65,7 +65,7 @@ $check('age 20-40', ['age_min' => 20, 'age_max' => 40], function ($f) {
 $check('dob_month=3', ['dob_month' => 3], fn ($f) => $f->members()->withoutGlobalScopes()->where('status', 'active')->whereMonth('dob', 3)->exists());
 $check('reg 2020-2030', ['reg_from' => '2020-01-01', 'reg_to' => '2030-12-31'], fn ($f) => $f->created_at >= '2020-01-01' && $f->created_at <= '2030-12-31 23:59:59');
 $q = mb_substr((string) $val('families', 'surname'), 0, 2);
-$check('q=prefix', ['q' => $q], fn ($f) => stripos((string) $f->surname . ' ' . $f->head_name . ' ' . $f->mobile . ' ' . $f->family_code, $q) !== false
+$check('q=prefix', ['q' => $q], fn ($f) => stripos((string) $f->surname . ' ' . $f->head_name . ' ' . $f->mobile . ' ' . $f->family_code . ' ' . $f->city . ' ' . $f->father_husband_name, $q) !== false
     || $f->members()->withoutGlobalScopes()->where('status', 'active')->where(fn ($w) => $w->where('name', 'like', "%$q%")->orWhere('surname', 'like', "$q%"))->exists());
 
 echo implode("\n", $report), "\n";

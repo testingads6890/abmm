@@ -534,3 +534,9 @@ The instructions above still apply. This section lists what was added or changed
 - Migrate, Died, meeting save and file upload are tested by code checks only, not in a browser.
 - Super Admin password: change the seeded default before go-live.
 - GitHub push: see the note in `CLAUDE.md`.
+
+## Data and checks (4 November 2026)
+- Demo families (`DM` codes, 36 records with no members) were removed.
+- Duplicate Master Data rows were merged (3,441 removed). Children were moved to the kept row, so state → district → tehsil links still hold.
+- Records that need source data are not changed automatically: 12 families with no head, 16 family member counts that differ from active members, and 52 members with no date of birth. These will be fixed only from CSV files.
+- Checks: `bash tests/unit/run-all.sh` (13 checks, all passing). New audit: `php tests/unit/data-audit.php` (read-only).
