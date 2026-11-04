@@ -183,3 +183,24 @@ Known data facts:
 - Prefer changing `Lookup` master data over hard-coding lists.
 - Keep the admin and API permission checks in step: a route `middleware('can:...')` and a menu `@can(...)` must use the same key.
 - Use `$request->user()` or `auth()->user()` for the logged-in user; never trust a user id from the request.
+
+---
+
+## 15. Changes since this handover was first written (November 2026)
+
+Full details are in `README.md` (update section at the end). Short list:
+
+- **Location data:** all 36 states link to an ABMM Pradesh, so Anchal fills for every state (`php artisan abmm:link-states`, map in `database/data/anchal_state_map.json`). Tehsil pincodes come from LGD (`php artisan abmm:link-pincodes`). Village/City suggestions per tehsil come from `database/data/villages/` via `GET /admin/geo/villages`.
+- **Family form:** fields open in order Country → State → District → Tehsil → Pradesh → Anchal. State, Tehsil and Pradesh are required. New optional WhatsApp field (`families.whatsapp`, migration `2026_11_04_000039`), also read by the CSV importer.
+- **Sub-admin areas:** a State Sub-Admin sees every tehsil in their state, even when the state is linked to a different Pradesh. Dropdowns in search and reports are limited to the user's area.
+- **Meeting list:** sub-admins add meetings for their Pradesh; Super Admin sees all, with filters and a "Submitted by" column. District and Anchal fill from the Pradesh.
+- **Staff API:** family search fixed; added family members, archive, migrate, reports as JSON, masters. Member API: `GET /api/v1/m/config`.
+- **Checks:** `bash tests/unit/run-all.sh` runs 13 checks (all pass). Browser behaviour is not covered.
+- **Server:** Composer packages updated within limits (Laravel 12.71.0, PHP 8.2.35). Laravel 13 upgrade is **not** started and needs a separate check.
+
+## 16. Open items
+
+- Village/City dropdown and Pincode fill: confirm in a browser (Network tab, `villages` request).
+- Zone is not in the family form; its meaning must be confirmed.
+- Migrate, Died, meeting save and file upload are tested by code checks only.
+- Change the seeded Super Admin password before go-live.
