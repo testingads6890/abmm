@@ -1,0 +1,66 @@
+# --- ABMM additions: paste into .env ---
+QUEUE_CONNECTION=database        # then: php artisan queue:table (agar jobs table na ho) && php artisan migrate && php artisan queue:work
+
+# Firebase Cloud Messaging (HTTP v1)
+FCM_PROJECT_ID=your-firebase-project-id
+FCM_CREDENTIALS=/full/path/to/storage/app/private/firebase-service-account.json
+
+# Razorpay TEST keys (Dashboard > Settings > API Keys, Test Mode). Live keys sirf production .env me.
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
+RAZORPAY_KEY_SECRET=xxxxxxxxxxxxxxxxxxxx
+RAZORPAY_WEBHOOK_SECRET=choose-a-long-random-string
+
+# Mobile app shared key (app sends header X-App-Key). Long random string.
+APP_API_KEY=change-this-to-a-long-random-string
+
+# Member app (Flutter) OTP: Firebase project id for Phone Auth. TEST_OTP skips Firebase for ANY mobile — testing only, REMOVE before going live.
+FIREBASE_PROJECT_ID=your-firebase-project-id
+TEST_OTP=123456
+
+
+# ---- Milestone A: Global foundation ----
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_TOKEN=
+WHATSAPP_VERIFY_TOKEN=
+WHATSAPP_RECEIPT_TEMPLATE=payment_receipt
+WHATSAPP_TEMPLATE_LANG=en
+SMS_URL=
+SMS_KEY=
+SMS_SENDER=ABMMSM
+WHATSAPP_APP_SECRET=
+WHATSAPP_NOTICE_TEMPLATE=notice
+
+# Milestone C
+LISTING_REQUIRES_SUBSCRIPTION=false
+B2B_REQUIRES_VERIFIED=true
+
+# AI features (optional - everything also works without these)
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-haiku-4-5
+AI_TIMEOUT=12
+
+# Milestone D - Parichay
+ZOOM_ACCOUNT_ID=
+ZOOM_CLIENT_ID=
+ZOOM_CLIENT_SECRET=
+WHATSAPP_BIODATA_TEMPLATE=biodata_digest
+
+# Milestone E
+BLOOD_GAP_DAYS=90
+
+# ---- Milestone F: Learning Academy, weekly exams, Housie ----
+EXAM_QUESTIONS=10
+
+# ---- Milestone G: production ----
+BACKUP_KEEP_DAYS=14
+# For the live server copy deploy/env.production.sample (Redis cache/session/queue, SMTP, Firebase, Razorpay live keys)
+
+# ---- iPhone / Apple In-App Purchase (docs/IOS-PAYMENTS.md) ----
+IOS_DIGITAL_MODE=external          # external | iap | off
+IOS_DIGITAL_PURPOSES=course,housie,jobpack,training
+IOS_BUNDLE_ID=
+IOS_ALLOW_SANDBOX=false
+APPLE_ROOT_CA_PATH=
+IOS_WEB_URL=

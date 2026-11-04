@@ -1,0 +1,20 @@
+/vendor
+/node_modules
+.env
+/storage/*.key
+/public/storage
+
+# Personal data, dumps and archives: never commit
+/storage
+/*.sql
+/*.csv
+/*.zip
+/database/*.sql
+/database/*.csv
+/*.xls
+/BHARATPUR*
+/abmm_sampark.sql
+/latestabmm_sampark.sql
+/*.env.*
+/bootstrap/cache
+/public/images/*.original

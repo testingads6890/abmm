@@ -1,0 +1,6 @@
+# Laravel scheduler - ONE line drives everything (greetings, subscriptions, reconcile payments, Housie every minute, exams, backups ...)
+# Install with:  sudo crontab -u www-data -e   and paste the next line (fix the path)
+* * * * * cd /var/www/abmm && php artisan schedule:run >> /dev/null 2>&1
+
+# Optional weekly uploads backup (Sunday 04:00)
+0 4 * * 0 cd /var/www/abmm && php artisan abmm:backup --files >> /dev/null 2>&1

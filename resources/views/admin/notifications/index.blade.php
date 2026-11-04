@@ -1,0 +1,33 @@
+@extends('layouts.admin')
+@section('title','Send Notification')
+@section('content')
+<nav class="text-sm mb-3" style="color:var(--muted)">Dashboard / Communication / <b>Send Notification</b></nav>
+<div class="grid lg:grid-cols-3 gap-4">
+<form method="post" action="{{ route('admin.notifications.store') }}" class="card p-5 grid gap-3 content-start no-print" id="nf">@csrf
+ <div class="rounded-xl p-3 text-sm {{ $fcmReady ? 'badge-ok' : 'badge-warn' }}">Firebase: <b>{{ $fcmReady ? 'connected' : 'not configured' }}</b></div>
+ <div class="grid grid-cols-2 gap-2"><label class="btn btn-ghost"><input type="radio" name="kind" value="notice" checked onchange="nf.querySelector('#mt').classList.add('hidden')"> Notice</label><label class="btn btn-ghost"><input type="radio" name="kind" value="meeting" onchange="nf.querySelector('#mt').classList.remove('hidden')"> Meeting (M)</label></div>
+ <label class="label">Who to send to</label><select class="input" name="audience">@foreach(['country'=>'Country (whole country)','anchal'=>'ABMM Anchal (all its Pradesh)','pradesh'=>'Region / ABMM Pradesh','state'=>'State','district'=>'District','tehsil'=>'Tehsil / Town','city'=>'City','zone'=>'City Zone (e.g. Zone 1)'] as $k=>$l)<option value="{{ $k }}" @selected(old('audience')===$k)>{{ $l }}</option>@endforeach</select>
+ <input class="input" name="audience_value" value="{{ old('audience_value') }}" placeholder="Name (blank for a country)" list="dl-aud" autocomplete="off">
+ @php $lk = \App\Models\Lookup::grouped(); @endphp<datalist id="dl-aud">@foreach(array_merge($lk['anchal'] ?? [], $lk['pradesh'] ?? []) as $v)<option value="{{ $v }}">@endforeach</datalist>
+ <div class="grid grid-cols-2 gap-2"><div><label class="label">Channel</label><select class="input" name="channel"><option value="app">App push</option><option value="sms">SMS</option><option value="whatsapp">WhatsApp</option></select></div>
+  <div><label class="label">Send to</label><select class="input" name="send_to"><option value="all">All members</option><option value="Male">Male only</option><option value="Female">Female only</option><option value="head">Family Head only</option></select></div>
+  <div><label class="label">Blood group</label><select class="input" name="blood_group"><option value="">Any</option>@foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg)<option>{{ $bg }}</option>@endforeach</select></div>
+  <div class="text-sm flex flex-col justify-end gap-1"><label><input type="checkbox" name="vaccinated" value="1"> Vaccinated only</label><label><input type="checkbox" name="covid_recovered" value="1"> Recovered only</label></div></div>
+ <input class="input" name="title" value="{{ old('title','ABMM Sampark') }}" maxlength="120" required>
+ <textarea class="input" name="message" rows="4" maxlength="200" id="msg" oninput="document.getElementById('rc').textContent=200-this.value.length" placeholder="Sandesh" required>{{ old('message') }}</textarea>
+ <div class="flex items-center justify-between text-xs" style="color:var(--muted)"><span>Remaining: <b id="rc">200</b>/200</span><button type="button" class="badge" onclick="var m=document.getElementById('msg');m.setRangeText('&lt;name&gt;',m.selectionStart,m.selectionEnd,'end');m.focus();m.dispatchEvent(new Event('input'))">Name (click to insert)</button></div>
+ <div id="mt" class="hidden grid gap-2"><input class="input" type="date" name="event_date" min="{{ date('Y-m-d') }}"><input class="input" type="time" name="event_time"><input class="input" name="venue" placeholder="Venue / place"></div>
+ <button class="btn btn-primary">Send push</button></form>
+<div class="lg:col-span-2">
+<form class="card p-4 grid sm:grid-cols-5 gap-3 mb-3 no-print"><select class="input sm:col-span-2" name="tehsil"><option value="">Tehsil / Town</option>@foreach($tehsils as $t)<option @selected(request('tehsil')===$t)>{{ $t }}</option>@endforeach</select><input class="input" type="date" name="from" value="{{ request('from') }}" required><input class="input" type="date" name="to" value="{{ request('to') }}" required><button class="btn btn-ink">Search</button></form>
+<div class="flex justify-between text-sm mb-2 no-print"><span style="color:var(--muted)">Note: 100 records are shown by default. M = Meeting.</span><span class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="print()">🖨 Print</button><a class="btn btn-ghost btn-sm" href="{{ request()->fullUrlWithQuery(['export'=>'xlsx']) }}">Excel</a><a class="btn btn-ghost btn-sm" href="{{ request()->fullUrlWithQuery(['export'=>'pdf']) }}">PDF</a></span></div>
+<div class="flex justify-end mb-2 no-print"><input class="input" style="max-width:260px" placeholder="Search:" oninput="var q=this.value.toLowerCase();document.querySelectorAll('#nt tbody tr').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(q)>-1?'':'none'})"></div>
+<div class="card p-2 overflow-x-auto"><table id="nt" class="tbl stack"><thead><tr><th>Sent By</th><th>Sent To</th><th>Message</th><th>Member Count</th><th>Seen</th><th>Not Seen</th><th>Date</th><th class="no-print">Action</th></tr></thead><tbody>
+@foreach($rows as $n)<tr><td data-l="By">{{ $n->sender?->name }} @if($n->kind==='meeting')<span class="badge">M</span>@endif</td><td data-l="To">{{ ucfirst($n->audience) }} {{ $n->audience_value }}</td><td data-l="Msg"><b>{{ $n->title }}</b><div class="text-xs">{{ \Illuminate\Support\Str::limit($n->message,70) }}</div></td><td data-l="Count">{{ $n->member_count }}</td><td data-l="Seen">{{ $n->seen_count }}</td><td data-l="Not seen">{{ max(0,$n->member_count-$n->seen_count) }}</td><td data-l="Date">{{ $n->created_at?->format('d-M-Y') }}<br><span class="badge {{ $n->delivery_status==='sent'?'badge-ok':($n->delivery_status==='failed'?'badge-bad':'badge-warn') }}" title="{{ $n->error }}">{{ $n->delivery_status }}</span></td>
+<td class="no-print"><div class="acts">
+  <a class="act act-ink" title="Message Seen Status" target="_blank" href="{{ route('admin.print',['message-status',$n->id]) }}">☰</a>
+  <a class="act act-ok" title="View" target="_blank" href="{{ route('admin.print',['message',$n->id]) }}">🔍</a>
+  <a class="act act-info" title="Print" target="_blank" href="{{ route('admin.print',['message',$n->id]) }}?print=1">🖨</a>
+  <form method="post" action="{{ route('admin.notifications.resend',$n) }}">@csrf<button class="act act-warn" title="Send again">↻</button></form>
+  <form method="post" action="{{ route('admin.notifications.destroy',$n) }}" onsubmit="return confirm('Remove the record?')">@csrf @method('DELETE')<button class="act act-bad" title="Delete">✕</button></form></div></td></tr>@endforeach</tbody></table></div><div class="mt-4 no-print">{{ $rows->links() }}</div></div></div>
+@endsection

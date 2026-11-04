@@ -1,0 +1,15 @@
+@extends('layouts.admin')
+@section('title','Points & Leaderboard')
+@section('content')
+<div class="grid sm:grid-cols-3 gap-3 mb-4"><div class="card p-4"><div class="text-xs" style="color:var(--muted)">Active today</div><div class="text-3xl font-display">{{ $activeToday }}</div></div></div>
+<form method="get" class="flex flex-wrap gap-2 mb-3"><select class="input !w-40" name="period"><option value="month" @selected($period==='month')>This month</option><option value="all" @selected($period==='all')>All time</option></select>
+ <input class="input !w-40" name="country" placeholder="Country" value="{{ $geo['country'] ?? '' }}"><input class="input !w-40" name="city" placeholder="City" value="{{ $geo['city'] ?? '' }}"><input class="input !w-40" name="zone" placeholder="Zone" value="{{ $geo['zone'] ?? '' }}"><button class="btn btn-sm btn-ink">Apply</button></form>
+<div class="grid lg:grid-cols-2 gap-4">
+ <div class="card p-3 overflow-x-auto"><h3 class="font-display text-lg mb-2">Leaderboard</h3><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>City</th><th>Points</th></tr></thead><tbody>@foreach($board as $i=>$x)<tr><td>{{ $i+1 }}</td><td>{{ $x->name }}</td><td>{{ $x->city }}</td><td>{{ $x->points }}</td></tr>@endforeach</tbody></table></div>
+ <div class="card p-3 overflow-x-auto"><h3 class="font-display text-lg mb-2">Top streaks</h3><table class="tbl"><thead><tr><th>Name</th><th>Current</th><th>Longest</th></tr></thead><tbody>@foreach($streaks as $x)<tr><td>{{ $x->name }}</td><td>{{ $x->current }}</td><td>{{ $x->longest }}</td></tr>@endforeach</tbody></table></div>
+ <div class="card p-3 overflow-x-auto"><h3 class="font-display text-lg mb-2">Point rules</h3><table class="tbl"><thead><tr><th>Action</th><th>Points</th><th>Daily cap</th><th>On</th><th></th></tr></thead><tbody>
+ @foreach($rules as $r)<tr><form method="post" action="{{ route('admin.points.rule',$r->id) }}">@csrf<td>{{ $r->label }}</td><td><input class="input !w-20" type="number" name="points" value="{{ $r->points }}"></td><td><input class="input !w-20" type="number" name="daily_cap" value="{{ $r->daily_cap }}"></td><td><input type="checkbox" name="is_active" value="1" @checked($r->is_active)></td><td>@can('points.edit')<button class="btn btn-sm">Save</button>@endcan</td></form></tr>@endforeach</tbody></table></div>
+ <div class="card p-3 overflow-x-auto"><h3 class="font-display text-lg mb-2">Badges</h3><table class="tbl"><thead><tr><th>Code</th><th>Name</th><th>Min points</th></tr></thead><tbody>@foreach($badges as $b)<tr><td>{{ $b->code }}</td><td>{{ $b->name }}</td><td>{{ $b->min_points ?: 'manual' }}</td></tr>@endforeach</tbody></table>
+ @can('points.edit')<form method="post" action="{{ route('admin.points.badge') }}" class="flex flex-wrap gap-2 mt-2">@csrf<input class="input !w-28" name="code" placeholder="code" required><input class="input !w-40" name="name" placeholder="Name" required><input class="input !w-28" type="number" name="min_points" placeholder="Min pts"><button class="btn btn-sm btn-ink">Add / update</button></form>@endcan</div>
+</div>
+@endsection

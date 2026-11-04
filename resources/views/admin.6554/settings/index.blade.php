@@ -1,0 +1,28 @@
+@extends('layouts.admin')
+@section('title','Settings')
+@section('content')
+<div class="grid lg:grid-cols-2 gap-4">
+<form method="post" action="{{ route('admin.settings.save') }}" class="card p-5 grid gap-3 content-start">@csrf<h3 class="font-display text-lg">Organisation</h3>
+ @foreach(['org_name'=>'Organisation name','sabhapati'=>'Sabhapati','operational_year'=>'Operational year','contact_mobile'=>'Contact mobile','contact_email'=>'Contact email','contact_address'=>'Address','copyright'=>'Copyright','sms_balance'=>'SMS balance','sms_daily_use'=>'Avg SMS / day'] as $k=>$l)
+  <div><label class="label">{{ $l }}</label><input class="input" name="{{ $k }}" value="{{ $s[$k] ?? '' }}"></div>@endforeach
+ @foreach(['privacy-policy'=>'Privacy Policy','terms-and-conditions'=>'Terms & Conditions','refund-policy'=>'Refund Policy'] as $k=>$l)
+  <div><label class="label">{{ $l }}</label><textarea class="input" rows="3" name="page_{{ str_replace('-','_',$k) }}">{{ $s['page_'.$k] ?? '' }}</textarea></div>@endforeach
+ <button class="btn btn-primary">Save</button></form>
+<div class="grid gap-4 content-start">
+ <form method="post" action="{{ route('admin.password') }}" class="card p-5 grid gap-3">@csrf<h3 class="font-display text-lg">Change password</h3>
+  <input class="input" type="password" name="current_password" placeholder="Current password" required><input class="input" type="password" name="password" placeholder="New password (min 10)" required><input class="input" type="password" name="password_confirmation" placeholder="Confirm" required><button class="btn btn-ink">Update</button></form>
+ <div class="card p-5"><h3 class="font-display text-lg mb-2">Master Data</h3><p class="text-sm mb-3" style="color:var(--muted)">All dropdowns (surname, tehsil, qualification...) are now managed from the side menu <b>Master Data</b> are managed from.</p><a class="btn btn-primary btn-sm" href="{{ route('admin.masters.index','surname') }}">Open Master Data</a></div>
+ <div class="card p-5"><h3 class="font-display text-lg mb-2">Team</h3><p class="text-sm mb-3" style="color:var(--muted)">State Sub-Admin / District Admin / City Admin / Zone Admin are now managed from the separate Team page.</p><a class="btn btn-primary btn-sm" href="{{ route('admin.team.index') }}">Open Team</a></div>
+</div></div>
+<div class="grid lg:grid-cols-2 gap-4 mt-4">
+<form method="post" action="{{ route('admin.smtp.save') }}" class="card p-5 grid sm:grid-cols-2 gap-3 content-start">@csrf<h3 class="font-display text-lg sm:col-span-2">SMTP (email)</h3>
+ <div><label class="label">SMTP Host</label><input class="input" name="smtp_host" value="{{ $s['smtp_host'] ?? '' }}"></div><div><label class="label">SMTP Port</label><input class="input" name="smtp_port" value="{{ $s['smtp_port'] ?? 587 }}"></div>
+ <div><label class="label">Username</label><input class="input" name="smtp_user" value="{{ $s['smtp_user'] ?? '' }}" autocomplete="off"></div><div><label class="label">Password {{ ! empty($s['smtp_pass']) ? '(saved - blank = unchanged)' : '' }}</label><input class="input" type="password" name="smtp_pass" autocomplete="new-password"></div>
+ <div><label class="label">From</label><input class="input" type="email" name="smtp_from" value="{{ $s['smtp_from'] ?? '' }}"></div><div><label class="label">From Name</label><input class="input" name="smtp_from_name" value="{{ $s['smtp_from_name'] ?? '' }}"></div>
+ <div><label class="label">SMTP Reply</label><input class="input" type="email" name="smtp_reply" value="{{ $s['smtp_reply'] ?? '' }}"></div><div><label class="label">TLS</label><select class="input" name="smtp_tls"><option value="1" @selected(($s['smtp_tls'] ?? '1')==='1')>Yes</option><option value="0" @selected(($s['smtp_tls'] ?? '1')==='0')>No</option></select></div>
+ <button class="btn btn-ink sm:col-span-2">Save SMTP</button></form>
+<div class="card p-5"><h3 class="font-display text-lg mb-3">Contact Us — offices</h3>
+ @foreach($offices as $o)<div class="flex justify-between gap-3 py-2 border-b text-sm" style="border-color:var(--line)"><span><b>{{ $o->title }}</b> {{ $o->person }}<br><span style="color:var(--muted)">{{ $o->phones }}</span></span><form method="post" action="{{ route('admin.offices.destroy',$o) }}">@csrf @method('DELETE')<button class="btn btn-ghost btn-sm">✕</button></form></div>@endforeach
+ <form method="post" action="{{ route('admin.offices.store') }}" class="grid sm:grid-cols-2 gap-2 mt-3">@csrf<input class="input" name="title" placeholder="Title (SABHAPATI OFFICE)" required><input class="input" name="person" placeholder="Name"><input class="input sm:col-span-2" name="address" placeholder="Address"><input class="input" name="phones" placeholder="Phone / Mobile"><input class="input" type="email" name="email" placeholder="Email"><button class="btn btn-primary sm:col-span-2">Add office</button></form></div></div>
+<div class="card p-5 mt-4"><h3 class="font-display text-lg mb-3">Recent activity</h3>@foreach($logs as $l)<div class="flex justify-between text-sm py-1.5 border-b" style="border-color:var(--line)"><span>{{ $l->user?->name }} · <span class="badge">{{ $l->action }}</span></span><span style="color:var(--muted)">{{ $l->ip }} · {{ $l->created_at->format('d M h:i A') }}</span></div>@endforeach</div>
+@endsection

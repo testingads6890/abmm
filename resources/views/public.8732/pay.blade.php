@@ -1,0 +1,18 @@
+@extends('layouts.public')
+@section('title','Payment')
+@section('content')
+<div class="max-w-md mx-auto px-4 pt-14 text-center">
+  <div class="card p-8"><div class="stat-num">₹{{ number_format($don->amount) }}</div><p class="mt-2" style="color:var(--muted)">{{ $don->name }} · Donation #{{ $don->id }}</p>
+  <button id="payBtn" class="btn btn-primary w-full mt-6">Pay with Razorpay</button>
+  <p class="text-xs mt-3" style="color:var(--muted)">Test mode: card 4111 1111 1111 1111, any future expiry/CVV.</p></div>
+  <form id="vf" method="post" action="{{ route('donate.verify') }}">@csrf<input type="hidden" name="razorpay_order_id"><input type="hidden" name="razorpay_payment_id"><input type="hidden" name="razorpay_signature"></form>
+</div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const f=document.getElementById('vf');
+const rzp=new Razorpay({key:@json($keyId),amount:@json($order['amount']),currency:'INR',order_id:@json($order['id']),name:'ABMM Sampark',description:'Donation',
+  prefill:{name:@json($don->name),email:@json($don->email),contact:@json($don->mobile)},theme:{color:'#e8772e'},
+  handler:r=>{f.razorpay_order_id.value=r.razorpay_order_id;f.razorpay_payment_id.value=r.razorpay_payment_id;f.razorpay_signature.value=r.razorpay_signature;f.submit()}});
+document.getElementById('payBtn').onclick=()=>rzp.open(); rzp.open();
+</script>
+@endsection
